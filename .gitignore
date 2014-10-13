@@ -1,0 +1,8 @@
+*.pyc
+.*.pyc
+.hgignore
+.hg
+.*.swp
+*.wpu
+.idea/
+server_side/venv

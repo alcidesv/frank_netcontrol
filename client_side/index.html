@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Frankestein en casa</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+{% raw %}  <!-- Avoid interference between Jinja2 and handlebars -->
+
+  <script type="text/x-handlebars">
+      <div class="container">
+
+          <h1>Frank: bienvenido</h1>
+          <ul class='nav nav-pills'>
+              {{#linkTo 'quick' tagName='li'}}{{#linkTo 'quick'}}Conectar/Desconectar{{/linkTo}}{{/linkTo}}</li>
+              {{#linkTo 'netinterfaces' tagName='li'}}{{#linkTo 'netinterfaces'}}Interfaces{{/linkTo}}{{/linkTo}}</li>
+              {{#linkTo 'documentation-nodes' tagName='li'}}{{#linkTo 'documentation-nodes'}}Documentación de Frank{{/linkTo}}{{/linkTo}}</li>
+          </ul>
+
+          <hr/>
+          {{outlet}}
+      </div>
+  </script>
+
+
+  <script type="text/x-handlebars" data-template-name="netinterfaces">
+      <h2>Interfaces de red y estadísticas</h2>
+      <hr class="clearfix">
+      <div class="interface-ul">
+          {{#each controller}}
+          <div class="interface-li">
+              <h3 class="interface-name">{{name}}</h3>
+              {{#if inetAddr}}<span class="interface-addr">{{inetAddr}}</span>{{/if}}
+              <span class="interface-flags">{{flags}}</span>
+              {{#if dstAddr}}<span class="interface-dst-addr">{{dstAddr}}</span>{{/if}}
+              <div class="row">
+                  <div class="col-lg-5">
+                      <h4>Receive </h4>
+                      <table class="table">
+                          <thead><tr>
+                              <th>Atributo/stat</th>
+                              <th>Valor</th>
+                          </tr></thead>
+                          <tr><td class="interface-stat-caption">receiveBytes</td><td class="interface-stat">{{ receiveBytes }} </td></tr>
+                          <tr><td class="interface-stat-caption">receivePackets</td><td class="interface-stat">{{ receivePackets }} </td></tr>
+                          <tr><td class="interface-stat-caption">receiveErrs</td><td class="interface-stat">{{ receiveErrs }} </td></tr>
+                          <tr><td class="interface-stat-caption">receiveDrops</td><td class="interface-stat">{{ receiveDrops }} </td></tr>
+                          <tr><td class="interface-stat-caption">receiveFifo</td><td class="interface-stat">{{ receiveFifo }} </td></tr>
+                          <tr><td class="interface-stat-caption">receiveFrame</td><td class="interface-stat">{{ receiveFrame }} </td></tr>
+                          <tr><td class="interface-stat-caption">receiveCompressed</td><td class="interface-stat">{{ receiveCompressed }} </td></tr>
+                          <tr><td class="interface-stat-caption">receiveMulticast</td><td class="interface-stat">{{ receiveMulticast }} </td></tr>
+                      </table>
+                  </div>
+                  <div class="col-lg-2"></div>
+                  <div class="col-lg-5">
+                      <h4>Transmit </h4>
+                      <table class="table">
+                          <thead><tr>
+                              <th>Stat name</th>
+                              <th>Stat value</th>
+                          </tr></thead>
+                          <tr><td class="interface-stat-caption">transmitBytes</td><td class="interface-stat">{{ transmitBytes }} </td></tr>
+                          <tr><td class="interface-stat-caption">transmitPackets</td><td class="interface-stat">{{ transmitPackets }} </td></tr>
+                          <tr><td class="interface-stat-caption">transmitErrs</td><td class="interface-stat">{{ transmitErrs }} </td></tr>
+                          <tr><td class="interface-stat-caption">transmitDrops</td><td class="interface-stat">{{ transmitDrops }} </td></tr>
+                          <tr><td class="interface-stat-caption">transmitFifo</td><td class="interface-stat">{{ transmitFifo }} </td></tr>
+                          <tr><td class="interface-stat-caption">transmitColls</td><td class="interface-stat">{{ transmitColls }} </td></tr>
+                          <tr><td class="interface-stat-caption">transmitCarrier</td><td class="interface-stat">{{ transmitCarrier }} </td></tr>
+                          <tr><td class="interface-stat-caption">transmitCompressed</td><td class="interface-stat">{{ transmitCompressed }} </td></tr>
+                      </table>
+                  </div>
+              </div>
+          </div>
+          {{/each}}
+      </div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="quick">
+      <h2>Conectar y desconectar</h2>
+      <hr class="clearfix">
+      {{view.marking}}
+      <div class="row">
+          <div class="col-lg-6 ff-connect-box">
+              {{#if isDisconnected}}
+              <button type="button"
+                      class="btn btn-primary ff-button-big"
+                      {{bindAttr disabled="block"}}
+                      {{action 'initConnect'}}
+              >
+                   Conectar módem/Ocupar teléfono
+              </button>
+              {{/if}}
+              {{#if isConnected}}
+              <button type="button"
+                      class="btn btn-primary ff-button-big"
+                      {{action 'extendConnect'}}
+                      {{bindAttr disabled="block"}}
+              >
+                    Extender conexión/Continuar conectado
+              </button>
+              {{/if}}
+          </div>
+          <div class="col-lg-6 ff-connect-box">
+              <button type="button" {{action 'initDisconnect'}} class="btn btn-warning ff-button-big" {{bindAttr disabled="isDisconnected"}}>Desconectar módem/Liberar teléfono</button>
+          </div>
+      </div>
+      <br><br>
+      <div class="row">
+          <div class="col-lg-3 ">
+              {{#if isDisconnected}}<span>Tiempo de conexión: </span>{{/if}}
+              {{#if isConnected}}<span>Prolongar tiempo de conexión: </span>{{/if}}
+              <div class="btn-group">
+                  <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                      <span>&nbsp;{{connectTime}} minutos &nbsp;</span>
+                      <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                      <li><a {{action 'setConnectionTime' 10}}>10 min</a></li>
+                      <li><a {{action 'setConnectionTime' 30}}>30 min</a></li>
+                      <li><a {{action 'setConnectionTime' 60}}>1 hora</a></li>
+                      <li><a {{action 'setConnectionTime' 120}}>2 horas</a></li>
+                  </ul>
+              </div>
+          </div>
+          <div class="col-lg-8 col-lg-offset-1">
+              <span>Estado actual: </span><span {{bindAttr class="connectLabelClass"}}>{{transStateNow}}</span>
+          </div>
+      </div>
+      {{#if hasLog}}
+      <br/><br/>
+      Módem:
+      <ul class="connect-console row">
+          {{#each logOutput}}
+          <li>{{.}}</li>
+          {{/each}}
+      </ul>
+      {{/if}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="documentation-nodes">
+      <h2>Documentation</h2>
+
+      <div class="doc-index">{{#each documentation_node in . }}
+          <span class="doc-topic">
+              {{#linkTo 'documentation-nodes.viewdoc' documentation_node}}{{documentation_node.mdName}}{{/linkTo}} &nbsp;
+          </span>
+          {{/each}}
+      </div>
+      <hr/>
+      {{outlet}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="documentation-nodes/viewdoc">
+      <h3>{{id}}</h3>
+      {{{documentationText.html}}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="documentation-nodes/viewman">
+      {{#if isLoaded}}
+          <h3>Man page: {{title}}({{section}})</h3>
+          <div>
+          {{{unescaped}}}
+          </div>
+      {{else}}
+          <div class="loading">Loading man page...</div>
+      {{/if}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="documentation-nodes/index">
+      <p> Here are some docs. The aim is to assist in trouble-shooting
+          the entire environment. If you need to do something fancy, or have a recurrent problem, please read this
+          section.
+      </p>
+  </script>
+
+
+{% endraw %}
+  <script src="{{ url_for('static', filename='js/libs/jquery-1.9.1.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/libs/handlebars-1.0.0-rc.4.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/libs/ember-1.0.0-rc.6.1.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/libs/ember-data.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/libs/markdown.js')}}"></script>
+
+  <script src="{{ url_for('static', filename='js/libs/bootstrap.js')}}"></script>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/router.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/models/store.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/models/netinterface.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/models/connection_state.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/models/status.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/models/documentation_node.js') }}"></script>
+
+  <script src="{{ url_for('static', filename='js/controllers/quick.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/controllers/misc_status.js') }}"></script>
+  <!--<script src="{{ url_for('static', filename='js/controllers/misc_status.js') }}"></script>-->
+</body>
+</html>

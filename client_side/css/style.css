@@ -1,0 +1,18 @@
+/* Put your CSS here */
+html, body {
+    margin: 20px;
+}
+
+button.ff-button-big{
+    width: 80%;
+    height: 140px;
+    margin: 0 auto;
+}
+
+button.ff-side-big{
+    height: 140px;
+}
+
+.ff-connect-box {
+    text-align: center;
+}
